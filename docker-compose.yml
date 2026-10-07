@@ -1,0 +1,35 @@
+services:
+  mcp-server:
+    build:
+      context: .
+      dockerfile: ./services/mcp-server/Dockerfile
+    image: lifeops/mcp-server:local
+    container_name: lifeops-mcp
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 8000
+      MCP_PATH: /mcp
+      DEMO_MODE: "true"
+      DATABASE_URL: file:/app/services/mcp-server/data/lifeops.db
+      # Bedrock is optional. Populate these to enable the enriched-summary path.
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      BEDROCK_MODEL_ID: ${BEDROCK_MODEL_ID:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      LIFEOPS_API_KEY: ${LIFEOPS_API_KEY:-}
+      LOG_LEVEL: info
+    ports:
+      - "8000:8000"
+    volumes:
+      - lifeops-data:/app/services/mcp-server/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:8000/healthz', r => process.exit(r.statusCode===200?0:1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  lifeops-data:

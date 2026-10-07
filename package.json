@@ -1,0 +1,31 @@
+{
+  "name": "lifeops-amazon-hackathon",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LifeOps — Ambient AI Assistant. Alexa+ MCP server + web dashboard for the Amazon Developer Hackathon 2026.",
+  "workspaces": [
+    "apps/*",
+    "services/*"
+  ],
+  "scripts": {
+    "install:all": "npm install --workspaces --include-workspace-root",
+    "dev": "npm-run-all --parallel dev:mcp dev:web",
+    "dev:mcp": "npm --workspace services/mcp-server run dev",
+    "dev:web": "npm --workspace apps/web run dev",
+    "build": "npm --workspace services/mcp-server run build && npm --workspace apps/web run build",
+    "start": "npm --workspace services/mcp-server run start",
+    "seed": "npm --workspace services/mcp-server run seed",
+    "demo:reset": "npm --workspace services/mcp-server run demo:reset",
+    "test": "npm --workspace services/mcp-server run test",
+    "test:mcp": "npm --workspace services/mcp-server run test:mcp",
+    "lint": "echo 'lint runs per-workspace; add tsc --noEmit checks as needed'"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "license": "MIT"
+}

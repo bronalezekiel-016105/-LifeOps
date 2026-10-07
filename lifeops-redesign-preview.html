@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LifeOps — Ambient AI Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>:root{
+  --bg:#0b0d14; --bg2:#0f1320; --panel:rgba(22,26,40,.72); --panel-solid:#141827;
+  --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.12);
+  --txt:#e8ebf4; --txt2:#aab2c7; --txt3:#6b7489;
+  --brand:#7c5cff; --brand2:#4d8dff; --brand-soft:rgba(124,92,255,.16);
+  --accent:#2dd4bf; --amber:#f5b445; --rose:#fb7185; --emerald:#34d399;
+  --radius:18px; --shadow:0 1px 2px rgba(0,0,0,.3),0 20px 50px -20px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{
+  font-family:'Inter',system-ui,sans-serif; color:var(--txt);
+  background:
+    radial-gradient(900px 520px at 88% -8%, rgba(124,92,255,.22), transparent 60%),
+    radial-gradient(820px 480px at -6% 108%, rgba(77,141,255,.18), transparent 60%),
+    radial-gradient(600px 400px at 50% 120%, rgba(45,212,191,.08), transparent 60%),
+    var(--bg);
+  min-height:100vh;
+}
+.mono{font-family:'JetBrains Mono',monospace}
+.app{display:grid;grid-template-columns:244px 1fr;min-height:100vh}
+
+/* ---------- Sidebar ---------- */
+.side{position:sticky;top:0;height:100vh;padding:22px 16px;border-right:1px solid var(--line);
+  display:flex;flex-direction:column;gap:6px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)}
+.brand{display:flex;align-items:center;gap:11px;padding:6px 8px 18px}
+.logo{height:40px;width:40px;border-radius:13px;display:grid;place-items:center;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--brand),var(--brand2));box-shadow:0 8px 24px -6px rgba(124,92,255,.6);font-size:19px}
+.brand h1{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.brand p{font-size:11px;color:var(--txt3)}
+.nav{display:flex;flex-direction:column;gap:3px;margin-top:4px}
+.nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;color:var(--txt2);
+  font-size:14px;font-weight:500;text-decoration:none;transition:.18s;cursor:pointer}
+.nav a:hover{background:rgba(255,255,255,.04);color:var(--txt)}
+.nav a.on{background:var(--brand-soft);color:#fff}
+.nav a.on svg{color:var(--brand)}
+.nav svg{height:18px;width:18px;color:var(--txt3)}
+.side-foot{margin-top:auto;padding:12px;border-radius:14px;border:1px solid var(--line);
+  background:rgba(255,255,255,.02);font-size:11.5px;color:var(--txt3);line-height:1.5}
+.side-foot b{color:var(--txt2);font-weight:600}
+
+/* ---------- Topbar ---------- */
+.main{min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 30px;
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;
+  background:rgba(11,13,20,.72);backdrop-filter:blur(14px)}
+.top .hi{font-size:15px;font-weight:600}
+.top .hi span{color:var(--txt3);font-weight:400}
+.top-r{display:flex;align-items:center;gap:14px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
+  font-size:12.5px;font-weight:500;border:1px solid var(--line2)}
+.pill.live{color:var(--emerald)}
+.dot{height:8px;width:8px;border-radius:50%;background:var(--emerald);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.5)}70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.chip-demo{background:var(--brand-soft);color:#c9b8ff;border:1px solid rgba(124,92,255,.3)}
+.avatar{height:34px;width:34px;border-radius:50%;background:linear-gradient(135deg,#4d8dff,#2dd4bf);
+  display:grid;place-items:center;font-weight:700;font-size:13px;color:#061018}
+
+.wrap{padding:28px 30px 48px;max-width:1240px;width:100%;margin:0 auto}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:22px;align-items:start}
+@media(max-width:1100px){.grid{grid-template-columns:1fr}.app{grid-template-columns:1fr}.side{display:none}}
+.col{display:flex;flex-direction:column;gap:22px;min-width:0}
+
+/* ---------- Cards ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+.ctitle{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--txt3);margin-bottom:14px}
+.ctitle svg{height:15px;width:15px}
+
+/* ---------- Command hero ---------- */
+.hero{background:
+    linear-gradient(135deg,rgba(124,92,255,.14),rgba(77,141,255,.07) 55%,transparent),
+    var(--panel-solid);
+  border:1px solid rgba(124,92,255,.22);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(400px 160px at 85% 0,rgba(124,92,255,.25),transparent 70%);pointer-events:none}
+.hero h2{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.hero .sub{color:var(--txt2);font-size:13.5px;margin-bottom:16px}
+.inbox{position:relative;z-index:2}
+.ta{width:100%;min-height:84px;resize:vertical;border-radius:14px;padding:15px 16px;font:inherit;font-size:15px;
+  color:var(--txt);background:rgba(0,0,0,.28);border:1px solid var(--line2);transition:.18s}
+.ta:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+.ta::placeholder{color:var(--txt3)}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.ex{padding:7px 13px;border-radius:999px;font-size:12.5px;font-weight:500;color:var(--txt2);
+  border:1px solid var(--line2);background:rgba(255,255,255,.03);cursor:pointer;transition:.16s}
+.ex:hover{color:#fff;border-color:var(--brand);background:var(--brand-soft)}
+.run{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;border:none;cursor:pointer;
+  font:inherit;font-weight:600;font-size:14px;color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand2));
+  box-shadow:0 10px 24px -8px rgba(124,92,255,.7);transition:.18s}
+.run:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.run:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.run svg{height:16px;width:16px}
+.hint{margin-top:10px;font-size:11.5px;color:var(--txt3)}
+.kbd{border:1px solid var(--line2);border-radius:6px;padding:1px 6px;font-size:11px}
+
+/* ---------- Plan timeline ---------- */
+.flex{display:flex;align-items:center;justify-content:space-between}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;font-size:11.5px;font-weight:600}
+.tag.bedrock{background:rgba(45,212,191,.14);color:var(--accent);border:1px solid rgba(45,212,191,.3)}
+.tag.det{background:rgba(255,255,255,.05);color:var(--txt2);border:1px solid var(--line2)}
+.psum{color:var(--txt2);font-size:14px;line-height:1.6;margin:12px 0 18px}
+.warn{border:1px solid rgba(245,180,69,.3);background:rgba(245,180,69,.08);border-radius:12px;padding:12px 14px;margin-bottom:18px}
+.warn .wh{display:flex;align-items:center;gap:7px;font-weight:600;font-size:13px;color:var(--amber);margin-bottom:5px}
+.warn ul{list-style:none;font-size:13px;color:#e9d9b4}
+.warn li{padding-left:14px;position:relative;line-height:1.5}
+.warn li::before{content:'';position:absolute;left:2px;top:8px;height:4px;width:4px;border-radius:50%;background:var(--amber)}
+.tl{position:relative;padding-left:8px}
+.blk{display:grid;grid-template-columns:66px 1fr;gap:14px;padding-bottom:16px;position:relative}
+.blk:last-child{padding-bottom:0}
+.time{text-align:right;padding-top:2px}
+.time .s{font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.time .e{font-size:11px;color:var(--txt3);font-family:'JetBrains Mono',monospace}
+.bbody{border-radius:13px;padding:13px 15px;border:1px solid var(--line);position:relative}
+.bbody.event{background:linear-gradient(100deg,rgba(77,141,255,.14),rgba(77,141,255,.04));border-color:rgba(77,141,255,.26)}
+.bbody.task{background:rgba(255,255,255,.03)}
+.bbody.break{background:rgba(45,212,191,.07);border-color:rgba(45,212,191,.2);border-style:dashed}
+.bbody .bt{font-weight:600;font-size:14.5px}
+.bbody .br{font-size:12.5px;color:var(--txt3);margin-top:3px}
+.ktag{position:absolute;top:13px;right:14px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:3px 8px;border-radius:7px}
+.ktag.event{background:rgba(77,141,255,.2);color:#9dc0ff}
+.ktag.task{background:rgba(255,255,255,.07);color:var(--txt2)}
+.ktag.break{background:rgba(45,212,191,.16);color:var(--accent)}
+
+/* ---------- Two mini panels ---------- */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:620px){.duo{grid-template-columns:1fr}}
+.litem{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.litem:last-child{border-bottom:none;padding-bottom:0}
+.litem .lt{width:62px;flex-shrink:0;font-size:12.5px;color:var(--txt2);font-family:'JetBrains Mono',monospace;padding-top:1px}
+.litem .ln{font-weight:600;font-size:14px}
+.litem .lm{font-size:12px;color:var(--txt3);margin-top:2px}
+.empty{font-size:13px;color:var(--txt3);padding:4px 0}
+
+/* ---------- Tasks ---------- */
+.task{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:none;padding-bottom:0}
+.check{height:22px;width:22px;border-radius:7px;border:1.5px solid var(--line2);flex-shrink:0;cursor:pointer;
+  display:grid;place-items:center;transition:.16s;background:transparent}
+.check:hover{border-color:var(--brand)}
+.check.done{background:var(--emerald);border-color:var(--emerald)}
+.check svg{height:13px;width:13px;color:#06281d;opacity:0}
+.check.done svg{opacity:1}
+.task .tt{flex:1;min-width:0}
+.task .tn{font-weight:600;font-size:14.5px}
+.task.is-done .tn{text-decoration:line-through;color:var(--txt3)}
+.task .tmeta{font-size:12px;color:var(--txt3);margin-top:2px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}
+.chip.high{background:rgba(251,113,133,.16);color:#ff9fae}
+.chip.medium{background:rgba(245,180,69,.16);color:#ffcf80}
+.chip.low{background:rgba(255,255,255,.06);color:var(--txt2)}
+
+/* ---------- Activity feed ---------- */
+.rail{display:flex;flex-direction:column;gap:22px;position:sticky;top:92px}
+.feed{list-style:none;display:flex;flex-direction:column;gap:4px}
+.fitem{display:flex;gap:12px;padding:9px 0;animation:slidein .4s ease both}
+@keyframes slidein{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+.fico{height:24px;width:24px;border-radius:8px;flex-shrink:0;display:grid;place-items:center;font-size:12px;font-weight:800}
+.fico.ok{background:rgba(52,211,153,.16);color:var(--emerald)}
+.fico.err{background:rgba(251,113,133,.16);color:var(--rose)}
+.fitem .fm{font-size:13.5px;font-weight:500;line-height:1.3}
+.fitem .ft{font-size:11px;color:var(--txt3);margin-top:3px;font-family:'JetBrains Mono',monospace}
+.feedwrap{position:relative}
+.feedwrap::before{content:'';position:absolute;left:11.5px;top:12px;bottom:12px;width:1px;background:var(--line2)}
+
+/* ---------- Stats ---------- */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{border:1px solid var(--line);border-radius:13px;padding:14px;background:rgba(255,255,255,.02)}
+.stat .sv{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.stat .sl{font-size:11.5px;color:var(--txt3);margin-top:3px}
+.stat.a .sv{color:var(--brand2)} .stat.b .sv{color:var(--emerald)}
+.stat.c .sv{color:var(--amber)} .stat.d .sv{color:var(--accent)}
+.bar{margin-top:14px}
+.bar .bl{display:flex;justify-content:space-between;font-size:12px;color:var(--txt2);margin-bottom:6px}
+.track{height:8px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .6s ease}
+
+/* ---------- misc ---------- */
+.callout{border-radius:13px;padding:15px 17px;border:1px solid var(--line2);background:rgba(255,255,255,.03);font-size:14px;line-height:1.6;color:var(--txt2)}
+.callout b{color:var(--txt)}
+.callout.ok{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.07)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;
+  background:var(--panel-solid);border:1px solid var(--line2);color:var(--txt);padding:12px 20px;border-radius:12px;
+  font-size:13.5px;font-weight:500;box-shadow:var(--shadow);transition:.3s;z-index:50;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.spin{animation:sp .7s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.foot{text-align:center;font-size:11.5px;color:var(--txt3);padding:30px 0 6px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">L</div>
+      <div><h1>LifeOps</h1><p>Ambient AI Assistant</p></div>
+    </div>
+    <nav class="nav">
+      <a class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5 12 3l9 6.5V21H3z"/></svg>Today</a>
+      <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Calendar</a>
+      <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/></svg>Tasks</a>
+      <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>Reminders</a>
+      <a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10h-10z"/><path d="M12 2v10l7-3"/></svg>Insights</a>
+    </nav>
+    <div class="side-foot">
+      <b>MCP</b> · protocol 2025-11-25<br/>Streamable HTTP · 7 tools<br/>
+      <b>AWS</b> · Bedrock + AgentCore
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="top">
+      <div class="hi">Good afternoon, Demo <span>— here’s your day at a glance</span></div>
+      <div class="top-r">
+        <span class="pill live"><span class="dot"></span>Connected</span>
+        <span class="pill chip-demo">Demo Mode</span>
+        <div class="avatar">DU</div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="grid">
+        <!-- Left column -->
+        <div class="col">
+          <!-- Command hero -->
+          <section class="card hero">
+            <div class="inbox">
+              <h2>What would you like LifeOps to do?</h2>
+              <p class="sub">One natural-language request → multi-tool orchestration → real action.</p>
+              <textarea id="prompt" class="ta" placeholder="Ask LifeOps to plan, prepare, or coordinate…">Plan my afternoon</textarea>
+              <div class="row">
+                <div class="chips" id="examples"></div>
+                <button id="run" class="run"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 3 14 9-14 9z"/></svg>Run</button>
+              </div>
+              <p class="hint">Press <span class="kbd">⌘ / Ctrl + Enter</span> to run · the Activity pane shows exactly which tools were orchestrated.</p>
+            </div>
+          </section>
+
+          <div id="result"></div>
+
+          <!-- Today duo -->
+          <div class="duo">
+            <section class="card">
+              <div class="ctitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Upcoming events</div>
+              <div id="events"></div>
+            </section>
+            <section class="card">
+              <div class="ctitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>Reminders</div>
+              <div id="reminders"></div>
+            </section>
+          </div>
+
+          <!-- Tasks -->
+          <section class="card">
+            <div class="flex" style="margin-bottom:6px">
+              <div class="ctitle" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/></svg>Tasks</div>
+              <span class="mono" id="taskcount" style="font-size:12px;color:var(--txt3)"></span>
+            </div>
+            <div id="tasks"></div>
+          </section>
+        </div>
+
+        <!-- Right rail -->
+        <aside class="rail">
+          <section class="card">
+            <div class="ctitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>Activity</div>
+            <div class="feedwrap"><ul class="feed" id="feed"></ul></div>
+          </section>
+          <section class="card">
+            <div class="ctitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 14 3-3 3 3 5-6"/></svg>At a glance</div>
+            <div class="stats" id="stats"></div>
+            <div class="bar">
+              <div class="bl"><span>Day completion</span><span id="pct">0%</span></div>
+              <div class="track"><div class="fill" id="fill" style="width:0%"></div></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+      <div class="foot">LifeOps · MCP protocol 2025-11-25 · Streamable HTTP · Amazon Developer Hackathon 2026 · redesigned UI preview</div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>'use strict';
+const MIN=60000;
+function roundQ(d){const q=15;d.setMinutes(Math.round(d.getMinutes()/q)*q,0,0);return d;}
+function inMin(m){return roundQ(new Date(Date.now()+m*MIN)).toISOString();}
+function fmtClock(iso){const d=new Date(iso);return isNaN(d)?'\u2014':d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});}
+function fmtMins(m){if(m<60)return m+' min';const h=Math.floor(m/60),r=m%60;return r?h+'h '+r+'m':h+'h';}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+// ---- demo state (mirrors seed.ts + domain types) ----
+const state={
+  tasks:[
+    {id:'t1',title:'Finish project proposal',priority:'high',status:'pending',estimatedMinutes:90,dueDate:'today'},
+    {id:'t2',title:'Review financial report',priority:'medium',status:'pending',estimatedMinutes:45,dueDate:'today'},
+    {id:'t3',title:'Reply to client emails',priority:'medium',status:'pending',estimatedMinutes:30,dueDate:'today'},
+    {id:'t4',title:'Update project documentation',priority:'low',status:'pending',estimatedMinutes:45,dueDate:'today'},
+  ],
+  events:[
+    {id:'e1',title:'Focused work',startAt:inMin(30),endAt:inMin(120),location:null},
+    {id:'e2',title:'Team meeting',startAt:inMin(150),endAt:inMin(210),location:'Conference room B'},
+    {id:'e3',title:'Client call',startAt:inMin(240),endAt:inMin(270),location:'Zoom'},
+  ],
+  reminders:[],
+};
+const PRANK={high:0,medium:1,low:2};
+
+// ---- deterministic planner (replicates planner.ts behaviour) ----
+function buildPlan(){
+  const events=[...state.events].sort((a,b)=>Date.parse(a.startAt)-Date.parse(b.startAt));
+  const pending=state.tasks.filter(t=>t.status==='pending').sort((a,b)=>PRANK[a.priority]-PRANK[b.priority]);
+  const blocks=[],warnings=[];
+  let cursor=roundQ(new Date()).getTime();
+  const BUF=5*MIN;
+  const unplaced=[];
+  const evQueue=[...events];
+  function nextEvStart(){return evQueue.length?Date.parse(evQueue[0].startAt):Infinity;}
+  for(const task of pending){
+    const dur=task.estimatedMinutes*MIN;
+    // flush any events that start before the cursor+task
+    while(evQueue.length && cursor+dur>nextEvStart()){
+      const ev=evQueue.shift();
+      blocks.push({kind:'event',title:ev.title,startAt:ev.startAt,endAt:ev.endAt,reason:ev.location?('At '+ev.location):'On your calendar'});
+      cursor=Math.max(cursor,Date.parse(ev.endAt))+BUF;
+    }
+    if(cursor+dur<=nextEvStart()){
+      const s=cursor,e=cursor+dur;
+      blocks.push({kind:'task',title:task.title,startAt:new Date(s).toISOString(),endAt:new Date(e).toISOString(),reason:(task.priority[0].toUpperCase()+task.priority.slice(1))+' priority \u00b7 '+fmtMins(task.estimatedMinutes)});
+      cursor=e+BUF;
+      if(blocks.length && Math.random()<0){}
+    }else{unplaced.push(task);}
+  }
+  while(evQueue.length){const ev=evQueue.shift();blocks.push({kind:'event',title:ev.title,startAt:ev.startAt,endAt:ev.endAt,reason:ev.location?('At '+ev.location):'On your calendar'});}
+  blocks.sort((a,b)=>Date.parse(a.startAt)-Date.parse(b.startAt));
+  // insert one recharge break after the first long stretch
+  if(blocks.length>=2){
+    const after=blocks[0];const bs=Date.parse(after.endAt);
+    blocks.splice(1,0,{kind:'break',title:'Recharge break',startAt:after.endAt,endAt:new Date(bs+10*MIN).toISOString(),reason:'Short reset between blocks'});
+  }
+  if(unplaced.length)warnings.push(unplaced.length+' task'+(unplaced.length>1?'s':'')+' couldn\u2019t be placed before your meetings: '+unplaced.map(t=>t.title).join(', ')+'.');
+  const pendMin=pending.reduce((s,t)=>s+t.estimatedMinutes,0);
+  if(pendMin>240)warnings.push('Heavy workload today ('+fmtMins(pendMin)+' of tasks) \u2014 consider deferring the low-priority item.');
+  const placed=blocks.filter(b=>b.kind==='task').length;
+  const summary='Mapped '+placed+' task'+(placed!==1?'s':'')+' around '+events.length+' calendar event'+(events.length!==1?'s':'')+', front-loading high-priority work and leaving 5-minute buffers between blocks.';
+  return {date:'Today',blocks,summary,warnings,generatedBy: Math.random()<2?'deterministic':'bedrock'};
+}
+
+function parseMinutesBefore(t){const m=t.match(/(\d{1,3})\s*(?:min(?:ute)?s?|m)\s*before/i);return m?parseInt(m[1],10):null;}
+function extractTitle(t){let m=t.match(/remind me (?:to |about )?(.*?)(?: (?:before|at) |$)/i);let s=m&&m[1]?m[1].trim():'';s=s.replace(/\s+\d{1,3}\s*(?:min(?:ute)?s?|m)$/i,'').trim();return s||null;}
+
+const HUMAN={get_tasks:"Retrieved today\u2019s tasks",get_schedule:'Checked calendar',get_productivity_insights:'Analyzed available time and conflicts',generate_daily_plan:'Generated a plan',summarize_day:'Summarized the day',create_reminder:'Created reminder',complete_task:'Marked task complete'};
+
+// ---- orchestrator (mirrors BFF intent routing) ----
+async function orchestrate(prompt){
+  const p=prompt.toLowerCase().trim();const act=[];
+  const call=async(tool)=>{await wait(180+Math.random()*260);const ms=1+Math.floor(Math.random()*5);act.push({tool,ok:true,ms,message:HUMAN[tool]});renderFeed(act);};
+  if(/(summar|recap|wrap[\s-]?up|how.*day)/.test(p)){
+    await call('summarize_day');
+    const done=state.tasks.filter(t=>t.status==='completed').length;const pend=state.tasks.filter(t=>t.status==='pending').length;
+    return {kind:'summary',text:'You\u2019ve completed '+done+' task'+(done!==1?'s':'')+' and have '+pend+' still pending, with '+state.events.length+' events on the calendar. The afternoon is your biggest focus window \u2014 protect it for the project proposal.'};
+  }
+  if(/^remind|reminder/.test(p)){
+    await call('get_schedule');
+    const up=[...state.events].sort((a,b)=>Date.parse(a.startAt)-Date.parse(b.startAt)).find(e=>Date.parse(e.startAt)>Date.now());
+    if(!up)return {kind:'error',message:'No upcoming events found to anchor the reminder against.'};
+    const mb=parseMinutesBefore(prompt)??30;
+    const remindAt=new Date(Date.parse(up.startAt)-mb*MIN).toISOString();
+    const title=extractTitle(prompt)||('Prepare for '+up.title);
+    await call('create_reminder');
+    const rem={id:'r'+(state.reminders.length+1),title,remindAt,status:'scheduled'};
+    state.reminders.push(rem);
+    return {kind:'reminder',reminder:rem,anchoredTo:up,minutesBefore:mb};
+  }
+  await Promise.all([call('get_tasks'),call('get_schedule'),call('get_productivity_insights')]);
+  await call('generate_daily_plan');
+  return {kind:'plan',plan:buildPlan()};
+}
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+// ---- DOM ----
+const $=s=>document.querySelector(s);
+const EX=['Plan my afternoon','What should I finish before my meeting?','Summarize my day','Remind me about my proposal 30 minutes before my meeting'];
+
+function renderExamples(){
+  $('#examples').innerHTML=EX.map((e,i)=>'<button class="ex" data-i="'+i+'">'+esc(e)+'</button>').join('');
+  $('#examples').querySelectorAll('.ex').forEach(b=>b.addEventListener('click',()=>{$('#prompt').value=EX[+b.dataset.i];$('#prompt').focus();}));
+}
+
+function renderEvents(){
+  const up=[...state.events].filter(e=>Date.parse(e.endAt)>Date.now()).sort((a,b)=>Date.parse(a.startAt)-Date.parse(b.startAt));
+  $('#events').innerHTML=up.length?up.map(e=>'<div class="litem"><div class="lt">'+fmtClock(e.startAt)+'</div><div><div class="ln">'+esc(e.title)+'</div>'+(e.location?'<div class="lm">'+esc(e.location)+'</div>':'')+'</div></div>').join(''):'<p class="empty">Nothing scheduled.</p>';
+}
+function renderReminders(){
+  const r=state.reminders;
+  $('#reminders').innerHTML=r.length?r.map(x=>'<div class="litem"><div class="lt">'+fmtClock(x.remindAt)+'</div><div><div class="ln">'+esc(x.title)+'</div><div class="lm">'+esc(x.status)+'</div></div></div>').join(''):'<p class="empty">No reminders yet. Ask LifeOps to create one.</p>';
+}
+function renderTasks(){
+  const t=state.tasks;
+  $('#taskcount').textContent=t.filter(x=>x.status==='completed').length+' / '+t.length+' done';
+  $('#tasks').innerHTML=t.map(x=>{
+    const done=x.status==='completed';
+    return '<div class="task'+(done?' is-done':'')+'"><div class="check'+(done?' done':'')+'" data-id="'+x.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 6"/></svg></div>'+
+      '<div class="tt"><div class="tn">'+esc(x.title)+'<span class="chip '+x.priority+'">'+x.priority[0].toUpperCase()+x.priority.slice(1)+'</span></div>'+
+      '<div class="tmeta">'+fmtMins(x.estimatedMinutes)+(x.dueDate?' \u00b7 due '+x.dueDate:'')+'</div></div></div>';
+  }).join('');
+  $('#tasks').querySelectorAll('.check').forEach(c=>c.addEventListener('click',()=>toggleTask(c.dataset.id)));
+}
+function toggleTask(id){
+  const t=state.tasks.find(x=>x.id===id);if(!t)return;
+  const was=t.status;t.status=t.status==='completed'?'pending':'completed';
+  if(was!=='completed'){pushFeed({tool:'complete_task',ok:true,ms:2,message:HUMAN.complete_task});toast('\u2713 \u201c'+t.title+'\u201d marked complete');}
+  renderTasks();renderStats();
+}
+function renderStats(){
+  const pend=state.tasks.filter(t=>t.status==='pending');
+  const done=state.tasks.filter(t=>t.status==='completed');
+  const up=state.events.filter(e=>Date.parse(e.endAt)>Date.now());
+  const pendMin=pend.reduce((s,t)=>s+t.estimatedMinutes,0);
+  const stats=[['a',pend.length,'Pending tasks'],['b',done.length,'Completed'],['c',up.length,'Upcoming events'],['d',fmtMins(pendMin),'Workload left']];
+  $('#stats').innerHTML=stats.map(s=>'<div class="stat '+s[0]+'"><div class="sv">'+s[1]+'</div><div class="sl">'+s[2]+'</div></div>').join('');
+  const total=state.tasks.length,pct=total?Math.round(done.length/total*100):0;
+  $('#pct').textContent=pct+'%';$('#fill').style.width=pct+'%';
+}
+function renderFeed(act){
+  $('#feed').innerHTML=act.length?act.map(a=>'<li class="fitem"><span class="fico '+(a.ok?'ok':'err')+'">'+(a.ok?'\u2713':'!')+'</span><div><div class="fm">'+esc(a.message)+'</div><div class="ft">'+esc(a.tool)+' \u00b7 '+a.ms+'ms</div></div></li>').join(''):'<p class="empty">No recent activity.</p>';
+}
+let feedCache=[];function pushFeed(e){feedCache.push(e);renderFeed(feedCache);}
+
+// ---- result rendering ----
+function renderResult(r){
+  const box=$('#result');
+  if(r.kind==='plan'){
+    const pl=r.plan;
+    const blocks=pl.blocks.map(b=>'<div class="blk"><div class="time"><div class="s">'+fmtClock(b.startAt)+'</div><div class="e">'+fmtClock(b.endAt)+'</div></div>'+
+      '<div class="bbody '+b.kind+'"><span class="ktag '+b.kind+'">'+(b.kind==='event'?'Event':b.kind==='task'?'Task':'Break')+'</span><div class="bt">'+esc(b.title)+'</div><div class="br">'+esc(b.reason)+'</div></div></div>').join('');
+    const warn=pl.warnings.length?'<div class="warn"><div class="wh"><svg viewBox="0 0 24 24" width="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Notes</div><ul>'+pl.warnings.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul></div>':'';
+    box.innerHTML='<section class="card"><div class="flex"><div class="ctitle" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Your plan \u00b7 '+esc(pl.date)+'</div><span class="tag '+(pl.generatedBy==='bedrock'?'bedrock':'det')+'">'+(pl.generatedBy==='bedrock'?'Bedrock summary':'Deterministic')+'</span></div><p class="psum">'+esc(pl.summary)+'</p>'+warn+'<div class="tl">'+blocks+'</div></section>';
+  }else if(r.kind==='reminder'){
+    box.innerHTML='<section class="card"><div class="ctitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/></svg>Reminder created</div><div class="callout ok"><b>'+esc(r.reminder.title)+'</b> \u2014 scheduled for <b>'+fmtClock(r.reminder.remindAt)+'</b> ('+r.minutesBefore+' min before \u201c'+esc(r.anchoredTo.title)+'\u201d). Computed in app code, never trusting the model.</div></section>';
+  }else if(r.kind==='summary'){
+    box.innerHTML='<section class="card"><div class="ctitle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Day summary</div><div class="callout">'+esc(r.text)+'</div></section>';
+  }else{
+    box.innerHTML='<section class="card"><div class="ctitle" style="color:var(--amber)">Couldn\u2019t complete that</div><div class="callout">'+esc(r.message)+'</div></section>';
+  }
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ---- run ----
+let busy=false;
+async function run(){
+  const prompt=$('#prompt').value.trim();if(!prompt||busy)return;
+  busy=true;const btn=$('#run');btn.disabled=true;
+  btn.innerHTML='<svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.2-8.5"/></svg>Working\u2026';
+  feedCache=[];
+  try{const r=await orchestrate(prompt);feedCache=[...feedCache];renderResult(r);renderEvents();renderReminders();renderTasks();renderStats();}
+  finally{busy=false;btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 3 14 9-14 9z"/></svg>Run';}
+}
+let toastT;function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+
+$('#run').addEventListener('click',run);
+$('#prompt').addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter')run();});
+document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('.nav a').forEach(x=>x.classList.remove('on'));a.classList.add('on');}));
+
+// ---- init ----
+renderExamples();renderEvents();renderReminders();renderTasks();renderStats();
+$('#feed').innerHTML='<p class="empty">Run a command to see the tool orchestration.</p>';
+// sync feedCache into live feed after orchestrate updates
+const _rf=renderFeed;renderFeed=function(a){feedCache=a;_rf(a);};</script>
+
+</body>
+</html>

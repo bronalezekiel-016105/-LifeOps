@@ -1,0 +1,38 @@
+{
+  "name": "@lifeops/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "LifeOps web dashboard — Vite/React SPA plus an Express BFF that speaks MCP to the LifeOps MCP server.",
+  "scripts": {
+    "dev": "concurrently -n bff,vite -c cyan,magenta \"npm:dev:bff\" \"npm:dev:vite\"",
+    "dev:bff": "tsx watch server/index.ts",
+    "dev:vite": "vite",
+    "build": "vite build",
+    "start": "NODE_ENV=production tsx server/index.ts",
+    "preview": "vite preview --port 5173"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.7.4",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  }
+}
