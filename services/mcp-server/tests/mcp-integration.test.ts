@@ -61,6 +61,9 @@ beforeAll(async () => {
         LOG_LEVEL: 'warn',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
+      // Windows: `npx` is `npx.cmd`; spawn() needs a shell to resolve it,
+      // otherwise it throws `spawn npx ENOENT`. Harmless on macOS/Linux.
+      shell: true,
     }
   );
   child.stderr?.on('data', (b) => process.stderr.write(`[srv] ${b}`));
@@ -72,7 +75,7 @@ beforeAll(async () => {
     const seed = spawn(
       'npx',
       ['tsx', 'src/scripts/seed.ts'],
-      { env: { ...process.env, DATABASE_URL: `file:${DB}` }, stdio: 'inherit' }
+      { env: { ...process.env, DATABASE_URL: `file:${DB}` }, stdio: 'inherit', shell: true }
     );
     seed.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`seed exit ${code}`))));
   });

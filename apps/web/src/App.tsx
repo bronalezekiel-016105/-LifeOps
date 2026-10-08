@@ -233,7 +233,7 @@ export default function App() {
             <i className="dot" />
             MCP connected
           </div>
-          <p className="side-note">Natural language \u2192 tool orchestration</p>
+          <p className="side-note">Natural language → tool orchestration</p>
         </div>
       </aside>
 
@@ -247,13 +247,10 @@ export default function App() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search tasks, events, reminders\u2026"
+              placeholder="Search tasks, events, reminders…"
             />
           </div>
           <div className="top-actions">
-            <span className="top-pill">
-              <i className="dot" /> Connected
-            </span>
             <button className="icon-btn" onClick={() => go('reminders')} aria-label="Reminders">
               <Icon name="bell" size={18} />
               {stats.reminders > 0 && <i className="badge" />}
@@ -265,7 +262,7 @@ export default function App() {
         <main className="main" ref={mainRef}>
           {error && <div className="alert">{error}</div>}
           {!today ? (
-            <div className="empty">Loading your day\u2026</div>
+            <div className="empty">Loading your day…</div>
           ) : view === 'today' ? (
             <TodayView
               summary={summary}
@@ -403,7 +400,7 @@ function TodayView(p: TodayViewProps) {
     <>
       <div className="page-head">
         <div>
-          <h1>Good day \u2014 here\u2019s your {todayStr()}</h1>
+          <h1>Good day — here’s your {todayStr()}</h1>
           <p>{p.summary?.summary ?? 'Your ambient assistant is ready.'}</p>
         </div>
       </div>
@@ -420,7 +417,7 @@ function TodayView(p: TodayViewProps) {
             onKeyDown={(e) => {
               if (e.key === 'Enter') p.runAsk(p.prompt);
             }}
-            placeholder="Tell me what to do \u2014 e.g. plan my day"
+            placeholder="Tell me what to do — e.g. plan my day"
           />
           <button className="btn primary" disabled={p.running} onClick={() => p.runAsk(p.prompt)}>
             <Icon name="play" size={14} /> {p.running ? 'Working\u2026' : 'Run'}
@@ -449,7 +446,7 @@ function TodayView(p: TodayViewProps) {
           </div>
           <div className="panel-body">
             {pending.length === 0 ? (
-              <div className="muted">All caught up \u2728</div>
+              <div className="muted">All caught up ✨</div>
             ) : (
               pending.map((t) => <TaskRow key={t.id} task={t} onToggle={p.toggleTask} />)
             )}
@@ -509,7 +506,7 @@ function AskResult({ res }: { res: AskResponse }) {
             {r.plan.plan.blocks.map((b: PlanBlock, i: number) => (
               <div className={`tl-row ${b.kind}`} key={i}>
                 <span className="tl-time">
-                  {formatClock(b.startAt)}\u2013{formatClock(b.endAt)}
+                  {formatClock(b.startAt)}–{formatClock(b.endAt)}
                 </span>
                 <span className="tl-title">{b.title}</span>
                 <span className="tl-reason">{b.reason}</span>
@@ -538,7 +535,7 @@ function AskResult({ res }: { res: AskResponse }) {
         <div className="panel-body">
           <p>
             <strong>{r.reminder.reminder.title}</strong> at {formatClock(r.reminder.reminder.remindAt)}
-            {r.anchoredTo && <> \u2014 before \u201c{r.anchoredTo.title}\u201d</>}
+            {r.anchoredTo && <> — before “{r.anchoredTo.title}”</>}
           </p>
         </div>
       </section>
@@ -610,7 +607,7 @@ function CalendarView({
                 >
                   <strong>{e.title}</strong>
                   <small>
-                    {formatClock(e.startAt)}\u2013{formatClock(e.endAt)}
+                    {formatClock(e.startAt)}–{formatClock(e.endAt)}
                   </small>
                 </div>
               ))}
@@ -669,7 +666,7 @@ function TasksView({
       <div className="page-head">
         <div>
           <h1>Tasks</h1>
-          <p>{tasks.filter((t) => t.status !== 'completed').length} pending \u00b7 {tasks.length} total</p>
+          <p>{tasks.filter((t) => t.status !== 'completed').length} pending · {tasks.length} total</p>
         </div>
       </div>
       <div className="filters">
@@ -733,7 +730,7 @@ function RemindersView({
             <option value="">Next meeting</option>
             {events.map((e) => (
               <option key={e.id} value={e.id}>
-                {e.title} \u00b7 {formatClock(e.startAt)}
+                {e.title} · {formatClock(e.startAt)}
               </option>
             ))}
           </select>
